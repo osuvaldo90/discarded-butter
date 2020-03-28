@@ -8,6 +8,8 @@ module.exports = {
     'standard',
     'plugin:import/errors',
     'plugin:import/warnings',
+    // this next line sets up both eslint-config-prettier and eslint-plugin-prettier
+    'plugin:prettier/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -21,7 +23,8 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: [
-    'react'
+    'react',
+    'prettier'
   ],
   settings: {
     react: {
@@ -29,5 +32,14 @@ module.exports = {
     }
   },
   rules: {
+    'prettier/prettier': [
+      'error',
+      {
+        singleQuote: true,
+        trailingComma: 'all',
+        printWidth: 100,
+        semi: false,
+      },
+    ],
   }
 }
