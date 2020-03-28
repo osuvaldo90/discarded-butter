@@ -24,6 +24,7 @@ module.exports = {
   },
   plugins: [
     'react',
+    'react-hooks',
     'prettier'
   ],
   settings: {
@@ -32,6 +33,7 @@ module.exports = {
     }
   },
   rules: {
+    'react-hooks/rules-of-hooks': 'error',
     'prettier/prettier': [
       'error',
       {
