@@ -50,5 +50,17 @@ module.exports = {
         semi: false,
       },
     ],
+    'import/order': ['error', {
+      alphabetize: { order: 'asc' },
+      'newlines-between': 'always',
+      pathGroups: [
+        {
+          'pattern': '@app/**',
+          'group': 'external',
+          'position': 'after'
+        }
+      ],
+      pathGroupsExcludedImportTypes: ['builtin']
+    }],
   }
 }
