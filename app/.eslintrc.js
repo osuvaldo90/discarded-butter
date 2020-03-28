@@ -9,7 +9,8 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     // this next line sets up both eslint-config-prettier and eslint-plugin-prettier
-    'plugin:prettier/recommended'
+    'plugin:prettier/recommended',
+    'plugin:jsx-a11y/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -25,7 +26,8 @@ module.exports = {
   plugins: [
     'react',
     'react-hooks',
-    'prettier'
+    'prettier',
+    'jsx-a11y'
   ],
   settings: {
     react: {
