@@ -30,6 +30,13 @@ module.exports = {
   settings: {
     react: {
       version: 'detect'
+    },
+    'import/resolver': {
+      alias: {
+        map: [
+          ['@app', './src/@app']
+        ],
+      }
     }
   },
   rules: {
