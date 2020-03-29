@@ -43,6 +43,7 @@ module.exports = {
   },
   rules: {
     'react-hooks/rules-of-hooks': 'error',
+    'react/self-closing-comp': 'error',
     'prettier/prettier': [
       'error',
       {
