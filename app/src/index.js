@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import App from '@app/App'
+import GameBoard from '@app/GameBoard'
+import GameLobby from '@app/GameLobby'
 
 import * as serviceWorker from './serviceWorker'
 
@@ -9,7 +10,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <GameBoard />
+    {/* <GameLobby /> */}
   </React.StrictMode>,
   document.getElementById('root'),
 )
