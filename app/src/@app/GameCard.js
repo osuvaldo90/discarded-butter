@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 
@@ -18,7 +19,7 @@ const variantMap = {
     bg: 'primary',
     text: 'white',
     buttonTextClass: 'text-white',
-    border: 'primary',
+    border: undefined,
   },
 }
 
@@ -31,10 +32,15 @@ const GameCard = ({ className, children, variant = 'light' }) => {
         <Button className={`stretched-link text-left ${buttonTextClass}`} variant="link">
           {children}
         </Button>
-        {/* CHECK */}
       </Card.Body>
     </Card>
   )
+}
+
+GameCard.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.oneOf(['light', 'dark', 'selected']),
 }
 
 export default GameCard

@@ -2,11 +2,11 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { ListGroup, Accordion, Card, Button } from 'react-bootstrap'
 
-const PlayerList = ({ className, playerName }) => {
+const PlayerList = ({ className, players, opened }) => {
+  const defaultActiveKey = opened ? '0' : undefined
   return (
-    <Accordion defaultActiveKey="0">
+    <Accordion className={className} defaultActiveKey={defaultActiveKey}>
       <Card>
-        {/* <Accordion.Toggle as={Card.Header}>Players</Accordion.Toggle> */}
         <Card.Header>
           <Accordion.Toggle className="stretched-link" eventKey="0" as={Button} variant="link">
             Players
@@ -14,10 +14,9 @@ const PlayerList = ({ className, playerName }) => {
         </Card.Header>
         <Accordion.Collapse eventKey="0">
           <ListGroup>
-            <ListGroup.Item>oz</ListGroup.Item>
-            <ListGroup.Item>andrew</ListGroup.Item>
-            <ListGroup.Item>meghan</ListGroup.Item>
-            <ListGroup.Item>ryan</ListGroup.Item>
+            {players.map(({ name }) => (
+              <ListGroup.Item key={name}>{name}</ListGroup.Item>
+            ))}
           </ListGroup>
         </Accordion.Collapse>
       </Card>
@@ -26,7 +25,11 @@ const PlayerList = ({ className, playerName }) => {
 }
 
 PlayerList.propTypes = {
-  playerName: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  players: PropTypes.arrayOf({
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  opened: PropTypes.bool,
 }
 
 export default PlayerList
