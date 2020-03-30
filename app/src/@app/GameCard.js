@@ -23,15 +23,23 @@ const variantMap = {
   },
 }
 
-const GameCard = ({ className, children, variant = 'light' }) => {
+const GameCard = ({ className, children, variant = 'light', onSelectCard }) => {
   const { bg, text, buttonTextClass, border } = variantMap[variant]
 
   return (
     <Card className={className} bg={bg} border={border} text={text}>
       <Card.Body>
-        <Button className={`stretched-link text-left ${buttonTextClass}`} variant="link">
-          {children}
-        </Button>
+        {onSelectCard ? (
+          <Button
+            className={`stretched-link text-left ${buttonTextClass}`}
+            variant="link"
+            onClick={onSelectCard}
+          >
+            {children}
+          </Button>
+        ) : (
+          children
+        )}
       </Card.Body>
     </Card>
   )
@@ -41,6 +49,7 @@ GameCard.propTypes = {
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf(['light', 'dark', 'selected']),
+  onSelectCard: PropTypes.func,
 }
 
 export default GameCard
