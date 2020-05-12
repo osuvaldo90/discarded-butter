@@ -1,0 +1,41 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/blue-tape": "^0.1.33",
+    "@types/node": "^13.13.5",
+    "@types/ramda": "^0.27.4",
+    "@types/tape": "^4.13.0",
+    "@types/ws": "^7.2.4",
+    "@typescript-eslint/eslint-plugin": "^2.32.0",
+    "@typescript-eslint/parser": "^2.32.0",
+    "blue-tape": "^1.0.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-node": "^0.3.3",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "json-schema": "^0.2.5",
+    "module-alias": "^2.2.2",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.5",
+    "source-map-support": "^0.5.19",
+    "tape": "^5.0.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "ramda": "^0.27.0",
+    "ws": "^7.3.0"
+  },
+  "_moduleAliases": {
+    "@app": "build/src"
+  }
+}
