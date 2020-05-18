@@ -1,4 +1,4 @@
-import R from 'ramda'
+import { values } from 'ramda'
 
 export enum MessageType {
   CREATE_GAME = 'CREATE_GAME',
@@ -7,4 +7,4 @@ export enum MessageType {
   GAME_JOINED = 'GAME_JOINED',
 }
 
-export const messageTypes = R.values(MessageType)
+export const messageTypes = values(MessageType)

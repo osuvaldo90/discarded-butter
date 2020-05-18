@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 
-class Player {
-  constructor(readonly id: string, readonly playerName: string, readonly key: string) {}
+export class Player {
+  constructor(readonly id: string, readonly name: string, private key: string) {}
 }
 
 export class Game {

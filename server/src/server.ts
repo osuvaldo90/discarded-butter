@@ -28,9 +28,13 @@ const handleMessage = (socket: WebSocket) => async ({
   type,
   payload,
 }: MessageInterface): Promise<void> => {
-  const client = new Client(socket)
-  const handler = getMessageHandler(type)
-  await handler(client, payload)
+  try {
+    const client = new Client(socket)
+    const handler = getMessageHandler(type)
+    await handler(client, payload)
+  } catch (cause) {
+    throw new VError({ cause, info: { type, payload } }, 'handleMessage')
+  }
 }
 
 const readDir = util.promisify(fs.readdir)

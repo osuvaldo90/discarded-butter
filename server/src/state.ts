@@ -1,6 +1,6 @@
 import VError from 'verror'
 
-import { Game } from './game'
+import { Game } from './engine'
 
 const games = new Map<string, Game>()
 

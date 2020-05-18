@@ -1,4 +1,4 @@
-import joi from '@hapi/joi'
+import { includes } from 'ramda'
 import VError from 'verror'
 import WebSocket from 'ws'
 
@@ -6,36 +6,31 @@ import { messageTypes } from './constants'
 import { MessageInterface } from './message-interface'
 import { getMessagePayloadSchema } from './registry'
 
-const messageSchema = joi.object({
-  type: joi
-    .string()
-    .valid(...messageTypes)
-    .required(),
-  payload: joi.object({}).required().unknown(),
-})
+function hasTypeProp(val: unknown): val is { type: unknown } {
+  return typeof val === 'object' && !!val && 'type' in val
+}
 
-export function deserialize(message: WebSocket.Data): MessageInterface {
-  const messageStr = message.toString()
+function isMessage(val: unknown): val is MessageInterface {
+  return hasTypeProp(val) && typeof val.type === 'string' && includes(val.type, messageTypes)
+}
 
+export function deserialize(data: WebSocket.Data): MessageInterface {
   try {
-    const parsed = JSON.parse(messageStr)
-    const { value: validatedMessageValue, error: messageError } = messageSchema.validate(parsed)
+    const message: unknown = JSON.parse(data.toString())
 
-    if (messageError) {
-      throw new VError({ cause: messageError }, messageError.annotate(true))
+    if (!isMessage(message)) {
+      throw new VError({ info: { message } }, `invalid message: ${JSON.stringify(message)}`)
     }
 
-    const validatedMessage = validatedMessageValue as MessageInterface
+    const payloadSchema = getMessagePayloadSchema(message.type)
+    const { error } = payloadSchema.validate(message.payload)
 
-    const payloadSchema = getMessagePayloadSchema(validatedMessage.type)
-    const { error: payloadError } = payloadSchema.validate(validatedMessage.payload)
-
-    if (payloadError) {
-      throw new VError({ cause: payloadError }, payloadError.annotate(true))
+    if (error) {
+      throw new VError({ cause: error, info: { message } }, error.annotate(true))
     }
 
-    return validatedMessage
+    return message
   } catch (cause) {
-    throw new VError({ cause, info: { messageStr } }, 'deserialize')
+    throw new VError({ cause, info: { data } }, 'deserialize')
   }
 }
