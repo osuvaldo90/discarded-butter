@@ -10,7 +10,8 @@ module.exports = {
     'plugin:import/warnings',
     // this next line sets up both eslint-config-prettier and eslint-plugin-prettier
     'plugin:prettier/recommended',
-    'plugin:jsx-a11y/recommended'
+    'plugin:jsx-a11y/recommended',
+    'plugin:react-hooks/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -43,6 +44,7 @@ module.exports = {
   },
   rules: {
     'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'error',
     'react/self-closing-comp': 'error',
     'prettier/prettier': [
       'error',
@@ -63,7 +65,7 @@ module.exports = {
           'position': 'after'
         }
       ],
-      pathGroupsExcludedImportTypes: ['builtin']
+      pathGroupsExcludedImportTypes: ['builtin'],
     }],
   }
 }

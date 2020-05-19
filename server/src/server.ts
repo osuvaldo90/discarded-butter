@@ -60,9 +60,10 @@ export async function startServer(options: WebSocket.ServerOptions): Promise<Web
     })
 
     server.on('connection', (socket) => {
+      console.log('new client')
       const handleData = pipe(deserialize, handleMessage(socket))
       socket.on('message', async (data) => {
-        console.log('recv data', data)
+        console.log('recv data\n', data)
         try {
           return await handleData(data)
         } catch (cause) {

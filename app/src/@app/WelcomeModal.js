@@ -41,8 +41,6 @@ const WelcomeModal = ({ show, setPlayerName }) => {
                   Join
                 </Button>
               </Modal.Body>
-              {/* <Modal.Footer>
-              </Modal.Footer> */}
             </Form>
           )
         }}

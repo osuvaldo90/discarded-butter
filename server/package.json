@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test-watch": "npx nodemon -w src -w test -w tsconfig.json -e ts -x \"tsc && blue-tape -r source-map-support/register -r module-alias/register\" build/test/integration.test.js"
+    "test-watch": "npx nodemon -w src -w test -w tsconfig.json -e ts -x \"tsc && blue-tape -r source-map-support/register -r module-alias/register\" build/test/integration.test.js",
+    "start-watch": "npx nodemon -w src -w tsconfig.json -e ts -x \"tsc && node -r source-map-support/register -r module-alias/register\" build/src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -38,7 +39,6 @@
     "@hapi/joi": "^17.1.1",
     "nanoid": "^3.1.7",
     "ramda": "^0.27.0",
-    "shortid": "^2.2.15",
     "verror": "^1.10.0",
     "ws": "^7.3.0"
   },

@@ -16,6 +16,8 @@ const CARDS_IN_HAND = [
 ]
 
 const TIME_LIMIT = 60000
+const WARNING_THRESHOLD = TIME_LIMIT / 3
+const DANGER_THRESHOLD = TIME_LIMIT / 6
 
 const GameBoard = ({ players }) => {
   const [selectedCardIndex, setSelectedCardIndex] = useState()
@@ -33,11 +35,8 @@ const GameBoard = ({ players }) => {
     }
   }, [startTime, msLeft])
 
-  const warningThreshold = TIME_LIMIT / 3
-  const dangerThreshold = TIME_LIMIT / 6
-
   const progressBarVariant =
-    msLeft > warningThreshold ? 'primary' : msLeft > dangerThreshold ? 'warning' : 'danger'
+    msLeft > WARNING_THRESHOLD ? 'primary' : msLeft > DANGER_THRESHOLD ? 'warning' : 'danger'
 
   return (
     <Container bg="light">

@@ -1,42 +1,35 @@
 import Joi from '@hapi/joi'
 
-import { Game, Player } from '@app/engine'
+import { Game, Player, SerializedGame } from '@app/engine'
+import { gameIdExists } from '@app/state'
 
 import { MessageType } from '../constants'
 import { MessageInterface } from '../message-interface'
 import { registerMessage } from '../registry'
-
-interface GameJoinedPlayer {
-  id: string
-  name: string
-}
+import { gameSchema } from '../schemas'
 
 interface GameJoinedPayload {
-  gameId: string
   playerId: string
-  players: GameJoinedPlayer[]
+  playerKey: string
+  game: SerializedGame
 }
 
-const playerSchema = Joi.object({
-  id: Joi.string().required(),
-  name: Joi.string().required(),
-})
-
 const gameJoinedSchema = Joi.object({
-  gameId: Joi.string().required(),
   playerId: Joi.string().required(),
-  players: Joi.array().items(playerSchema),
+  playerKey: Joi.string().required(),
+  game: gameSchema.required(),
 })
 
-export function makeGameJoinedMessage(game: Game, newPlayer: Player): MessageInterface {
-  const players = game.getPlayers()
-
+export function makeGameJoinedMessage(
+  game: Game,
+  newPlayer: Player,
+): MessageInterface<GameJoinedPayload> {
   return {
     type: MessageType.GAME_JOINED,
     payload: {
-      gameId: game.id,
       playerId: newPlayer.id,
-      players: players.map((player) => ({ id: player.id, name: player.name })),
+      playerKey: newPlayer.key,
+      game: game.serialize(),
     },
   }
 }

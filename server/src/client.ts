@@ -7,7 +7,7 @@ import { getMessagePayloadSchema } from '@app/messages/registry'
 export class Client {
   constructor(private socket: WebSocket) {}
 
-  async send(message: MessageInterface): Promise<void> {
+  async send(message: MessageInterface<unknown>): Promise<void> {
     try {
       const payloadSchema = getMessagePayloadSchema(message.type)
       const { error: payloadError } = payloadSchema.validate(message.payload)
@@ -15,6 +15,8 @@ export class Client {
       if (payloadError) {
         throw new VError({ cause: payloadError }, payloadError.annotate(true))
       }
+
+      console.log('send data\n', JSON.stringify(message))
 
       return await new Promise((resolve, reject) => {
         this.socket.send(JSON.stringify(message), (error) => {

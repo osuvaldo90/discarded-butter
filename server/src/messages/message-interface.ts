@@ -1,6 +1,6 @@
 import { MessageType } from './constants'
 
-export interface MessageInterface {
+export interface MessageInterface<T = object> {
   readonly type: MessageType
-  readonly payload: object
+  readonly payload: T
 }
