@@ -30,6 +30,7 @@ export interface SerializedRound {
   id: string
   startTime: number
   timeLimit: number
+  cardCzar: SerializedPlayer
   blackCard: BlackCard
   hand?: WhiteCard[]
 }
@@ -55,10 +56,7 @@ export function serializePlayer(player: Player): SerializedPlayer {
   }
 }
 
-const serializePlayers = pipe(
-  (playerMap: Map<string, Player>): Player[] => Array.from(playerMap.values()),
-  map(serializePlayer),
-)
+const serializePlayers = map(serializePlayer)
 
 export interface WhiteCard {
   id: string
@@ -74,7 +72,7 @@ export interface BlackCard {
 const TIME_LIMIT = 60000
 
 export class Round {
-  constructor(private blackCard: BlackCard) {
+  constructor(private cardCzar: Player, private blackCard: BlackCard) {
     this.id = nanoid()
     this.startTime = Date.now()
     this.timeLimit = TIME_LIMIT
@@ -95,9 +93,10 @@ export class Round {
   serializeForPlayer(player: Player): SerializedRound {
     return {
       id: this.id,
-      blackCard: this.blackCard,
       startTime: this.startTime,
       timeLimit: this.timeLimit,
+      cardCzar: serializePlayer(this.cardCzar),
+      blackCard: this.blackCard,
       hand: this.getPlayerHand(player),
     }
   }
@@ -123,10 +122,13 @@ const drawHand = pipe(
 )
 
 export class Game {
-  constructor(readonly id: string) {}
+  constructor(readonly id: string, firstPlayer: Player) {
+    this.addPlayer(firstPlayer)
+  }
 
   addPlayer(player: Player): void {
-    this.players.set(player.id, player)
+    this.players.push(player)
+    this.playersById.set(player.id, player)
     this.playersByKey.set(player.key, player)
   }
 
@@ -146,24 +148,24 @@ export class Game {
   }
 
   getPlayers(): Player[] {
-    return Array.from(this.players.values())
+    return this.players
   }
 
   startRound(): Round {
-    const newRound = new Round(drawBlackCard())
-    for (const player of this.players.values()) {
+    const czar = this.players[this.nextRoundCzarPlayerIndex]
+    const newRound = new Round(czar, drawBlackCard())
+    for (const player of this.playersById.values()) {
       newRound.setPlayerHand(player, drawHand())
     }
+
+    if (this.nextRoundCzarPlayerIndex + 1 === this.players.length) {
+      this.nextRoundCzarPlayerIndex = 0
+    } else {
+      this.nextRoundCzarPlayerIndex += 1
+    }
+
     this.round = newRound
     return this.round
-  }
-
-  setBlackCard(card: BlackCard): void {
-    this.blackCard = card
-  }
-
-  setPlayerHand(player: Player, cards: WhiteCard[]): void {
-    this.playerHands.set(player.id, cards)
   }
 
   serializeForPlayer(player: Player): SerializedGameState {
@@ -171,19 +173,15 @@ export class Game {
       gameId: this.id,
       playerId: player.id,
       playerKey: player.key,
-      players: this.serializePlayers(),
+      players: serializePlayers(this.players),
       round: this.round && this.round.serializeForPlayer(player),
     }
   }
 
-  private serializePlayers(): SerializedPlayer[] {
-    return serializePlayers(this.players)
-  }
-
-  private players = new Map<string, Player>()
+  private players: Player[] = []
+  private playersById = new Map<string, Player>()
   private playersByKey = new Map<string, Player>()
-  private blackCard?: BlackCard
-  private playerHands = new Map<string, WhiteCard[]>()
+  private nextRoundCzarPlayerIndex = 0
   private round?: Round
 }
 

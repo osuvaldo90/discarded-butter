@@ -3,7 +3,7 @@ import { reject, propEq } from 'ramda'
 
 import { Client } from '@app/client'
 import { createPlayer } from '@app/engine'
-import { addPlayerToGame } from '@app/state'
+import { addPlayerToGame, findGameById } from '@app/state'
 
 import { MessageType } from '../constants'
 import { MessageInterface } from '../message-interface'
@@ -27,7 +27,10 @@ async function handleJoinGame(
   { gameId, playerName }: JoinGamePayload,
 ): Promise<void> {
   const player = createPlayer(client, playerName)
-  const game = addPlayerToGame(gameId, player)
+  const game = findGameById(gameId)
+  game.addPlayer(player)
+
+  addPlayerToGame(game, player)
 
   const otherPlayers = reject(propEq('id', player.id), game.getPlayers())
 

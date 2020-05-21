@@ -9,10 +9,9 @@ export function gameIdExists(gameId: string): boolean {
   return games.has(gameId)
 }
 
-export function createGame(game: Game, player: Player): void {
-  game.addPlayer(player)
+export function storeNewGame(game: Game, firstPlayer: Player): void {
   games.set(game.id, game)
-  playerGames.set(player.key, game)
+  playerGames.set(firstPlayer.key, game)
 }
 
 export function findGameById(gameId: string): Game {
@@ -23,11 +22,8 @@ export function findGameById(gameId: string): Game {
   return game
 }
 
-export function addPlayerToGame(gameId: string, player: Player): Game {
-  const game = findGameById(gameId)
-  game.addPlayer(player)
+export function addPlayerToGame(game: Game, player: Player): void {
   playerGames.set(player.key, game)
-  return game
 }
 
 export function findGameByPlayerKey(playerKey: string): Game {

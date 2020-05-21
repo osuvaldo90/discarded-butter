@@ -21,6 +21,7 @@ export const roundSchema = Joi.object({
   id: Joi.string().required(),
   startTime: Joi.number().required(),
   timeLimit: Joi.number().required(),
+  cardCzar: playerSchema.required(),
   blackCard: blackCardSchema.required(),
   hand: Joi.array().items(whiteCardSchema.required()),
 })
