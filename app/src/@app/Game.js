@@ -1,6 +1,5 @@
 import { Router, navigate } from '@reach/router'
-import { equals } from 'ramda'
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
 import CreateGame from './CreateGame'
@@ -18,7 +17,7 @@ const gameStateReducer = (state, message) => {
   switch (type) {
     case 'GAME_CREATED':
     case 'GAME_JOINED':
-      navigate(`/${payload.game.id}`)
+      navigate(`/${payload.gameId}`)
       localStorage.setItem('playerKey', payload.playerKey)
       return payload
 
@@ -35,9 +34,13 @@ const gameStateReducer = (state, message) => {
       return undefined
 
     case 'DISCONNECTED':
+      navigate('/')
       localStorage.removeItem('playerKey')
       console.log('reset: ', type)
       return undefined
+
+    default:
+      console.error('unhandled message type: ', message)
   }
 
   return state

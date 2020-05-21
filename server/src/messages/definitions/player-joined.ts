@@ -5,7 +5,8 @@ import { SerializedPlayer, Player, serializePlayer } from '@app/engine'
 import { MessageType } from '../constants'
 import { MessageInterface } from '../message-interface'
 import { registerMessage } from '../registry'
-import { playerSchema } from '../schemas'
+
+import { playerSchema } from './common'
 
 interface PlayerJoinedPayload {
   player: SerializedPlayer

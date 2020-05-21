@@ -4,26 +4,17 @@ import { Container, Row, Col, ProgressBar } from 'react-bootstrap'
 
 import GameCard from './GameCard'
 import PlayerList from './PlayerList'
+import { gameStateShape } from './state'
 
-const CARDS_IN_HAND = [
-  { id: 0, text: 'Duis non sapien' },
-  { id: 1, text: 'Quisque sollicitudin' },
-  { id: 2, text: 'Aliquam' },
-  { id: 3, text: 'Donec eu enim eu arcu condimentum sollicitudin' },
-  { id: 4, text: 'Nam luctus lacus' },
-  { id: 5, text: 'Pellentesque sed nibh elit' },
-  { id: 6, text: 'Proin lobortis' },
-]
+const WARNING_THRESHOLD_SECONDS = 5
+const DANGER_THRESHOLD_SECONDS = 3
 
-const TIME_LIMIT = 60000
-const WARNING_THRESHOLD = TIME_LIMIT / 3
-const DANGER_THRESHOLD = TIME_LIMIT / 6
+const GameBoard = ({ gameState, sendMessage }) => {
+  const { startTime, timeLimit } = gameState.round
 
-const GameBoard = ({ gameState }) => {
-  const { players } = gameState.game
+  const { players } = gameState
   const [selectedCardIndex, setSelectedCardIndex] = useState()
-  const [startTime] = useState(Date.now())
-  const [msLeft, setMsLeft] = useState(TIME_LIMIT)
+  const [msLeft, setMsLeft] = useState(timeLimit)
 
   const secondsLeft = Math.floor(msLeft / 1000)
 
@@ -31,13 +22,31 @@ const GameBoard = ({ gameState }) => {
     if (msLeft > 0) {
       setTimeout(() => {
         const elapsed = Date.now() - startTime
-        setMsLeft(Math.max(0, TIME_LIMIT - elapsed))
+        setMsLeft(Math.max(0, timeLimit - elapsed))
       }, 100)
     }
-  }, [startTime, msLeft])
+  }, [startTime, timeLimit, msLeft])
+
+  const { hand, blackCard } = gameState.round
+  const onCardSelected = (index) => {
+    setSelectedCardIndex(index)
+    const selectedCard = hand[index]
+    sendMessage({
+      type: 'SUBMIT_WHITE_CARD',
+      payload: {
+        playerKey: gameState.playerKey,
+        roundId: gameState.round.id,
+        cardId: selectedCard.id,
+      },
+    })
+  }
 
   const progressBarVariant =
-    msLeft > WARNING_THRESHOLD ? 'primary' : msLeft > DANGER_THRESHOLD ? 'warning' : 'danger'
+    secondsLeft > WARNING_THRESHOLD_SECONDS
+      ? 'primary'
+      : secondsLeft > DANGER_THRESHOLD_SECONDS
+      ? 'warning'
+      : 'danger'
 
   return (
     <Container bg="light">
@@ -46,14 +55,13 @@ const GameBoard = ({ gameState }) => {
           <Row xs={1} md={2}>
             <Col className="mb-3 sticky-top">
               <GameCard className="h-100" variant="dark">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget pulvinar
-                lacus
+                {blackCard.content}
                 {secondsLeft > 0 ? (
                   <ProgressBar
                     className="mt-3"
                     variant={progressBarVariant}
                     min={0}
-                    max={TIME_LIMIT / 1000}
+                    max={timeLimit / 1000}
                     now={secondsLeft}
                     label={`${secondsLeft}s`}
                     animated
@@ -66,20 +74,21 @@ const GameBoard = ({ gameState }) => {
             <Col className="mb-3 d-md-none">
               <PlayerList players={players} opened={false} />
             </Col>
-            {CARDS_IN_HAND.map(({ id, text }, index) => {
-              const variant = index === selectedCardIndex ? 'selected' : 'light'
-              return (
-                <Col key={id} className="mb-3">
-                  <GameCard
-                    className="h-100"
-                    variant={variant}
-                    onSelectCard={() => setSelectedCardIndex(index)}
-                  >
-                    {text}
-                  </GameCard>
-                </Col>
-              )
-            })}
+            {hand &&
+              hand.map(({ id, content }, index) => {
+                const variant = index === selectedCardIndex ? 'selected' : 'light'
+                return (
+                  <Col key={id} className="mb-3">
+                    <GameCard
+                      className="h-100"
+                      variant={variant}
+                      onSelectCard={() => onCardSelected(index)}
+                    >
+                      {content}
+                    </GameCard>
+                  </Col>
+                )
+              })}
           </Row>
         </Col>
         <Col className="d-none d-md-block" md={3}>
@@ -91,11 +100,8 @@ const GameBoard = ({ gameState }) => {
 }
 
 GameBoard.propTypes = {
-  players: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  gameState: gameStateShape.isRequired,
+  sendMessage: PropTypes.func,
 }
 
 export default GameBoard

@@ -1,23 +1,14 @@
-import Joi from '@hapi/joi'
-
-import { Game, Player, SerializedGame } from '@app/engine'
+import { Game, Player, SerializedGameState } from '@app/engine'
 
 import { MessageType } from '../constants'
 import { MessageInterface } from '../message-interface'
 import { registerMessage } from '../registry'
-import { gameSchema } from '../schemas'
 
-export interface GameCreatedPayload {
-  playerId: string
-  playerKey: string
-  game: SerializedGame
-}
+import { gameStateSchema } from './common'
 
-export const gameCreatedSchema = Joi.object({
-  playerId: Joi.string().required(),
-  playerKey: Joi.string().required(),
-  game: gameSchema.required(),
-})
+export type GameCreatedPayload = SerializedGameState
+
+const gameCreatedSchema = gameStateSchema
 
 export function makeGameCreatedMessage(
   game: Game,
@@ -25,11 +16,7 @@ export function makeGameCreatedMessage(
 ): MessageInterface<GameCreatedPayload> {
   return {
     type: MessageType.GAME_CREATED,
-    payload: {
-      playerId: player.id,
-      playerKey: player.key,
-      game: game.serialize(),
-    },
+    payload: game.serializeForPlayer(player),
   }
 }
 

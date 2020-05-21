@@ -1,8 +1,10 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap'
 import { FaClipboardList } from 'react-icons/fa'
 
 import PlayerList from './PlayerList'
+import { gameStateShape } from './state'
 
 const GameLobby = ({ gameState, sendMessage }) => {
   const onStartGame = () => {
@@ -31,7 +33,7 @@ const GameLobby = ({ gameState, sendMessage }) => {
           <Row className="my-4">
             <Col>
               <InputGroup>
-                <Form.Control readOnly value={`https://free-cah.heroku.com/${gameState.game.id}`} />
+                <Form.Control readOnly value={`https://free-cah.heroku.com/${gameState.gameId}`} />
                 <InputGroup.Append>
                   <Button title="Copy link">
                     <FaClipboardList />
@@ -43,13 +45,16 @@ const GameLobby = ({ gameState, sendMessage }) => {
           </Row>
         </Col>
         <Col>
-          <PlayerList players={gameState.game.players} opened />
+          <PlayerList players={gameState.players} opened />
         </Col>
       </Row>
     </Container>
   )
 }
 
-GameLobby.propTypes = {}
+GameLobby.propTypes = {
+  gameState: gameStateShape.isRequired,
+  sendMessage: PropTypes.func.isRequired,
+}
 
 export default GameLobby

@@ -11,3 +11,24 @@ export const whiteCardSchema = Joi.object({
   id: Joi.string().required(),
   content: Joi.string().required(),
 })
+
+export const playerSchema = Joi.object({
+  id: Joi.string().required(),
+  name: Joi.string().required(),
+})
+
+export const roundSchema = Joi.object({
+  id: Joi.string().required(),
+  startTime: Joi.number().required(),
+  timeLimit: Joi.number().required(),
+  blackCard: blackCardSchema.required(),
+  hand: Joi.array().items(whiteCardSchema.required()),
+})
+
+export const gameStateSchema = Joi.object({
+  gameId: Joi.string().required(),
+  playerId: Joi.string().required(),
+  playerKey: Joi.string().required(),
+  players: Joi.array().items(playerSchema.required()).required(),
+  round: roundSchema,
+})
