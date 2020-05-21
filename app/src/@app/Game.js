@@ -1,44 +1,46 @@
 import { Router, navigate } from '@reach/router'
-import { isNil } from 'ramda'
+import { equals } from 'ramda'
 import React, { useEffect, useReducer, useState } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
 import CreateGame from './CreateGame'
+import GameBoard from './GameBoard'
 import GameLobby from './GameLobby'
 import JoinGame from './JoinGame'
 import JoinOrCreateGame from './JoinOrCreateGame'
 import RejoinGame from './RejoinGame'
+import { addPlayer, startRound } from './state'
 
 const gameStateReducer = (state, message) => {
-  console.log('recv', message)
+  console.log('RECV', message)
+
   const { type, payload } = message
   switch (type) {
     case 'GAME_CREATED':
+    case 'GAME_JOINED':
       navigate(`/${payload.game.id}`)
       localStorage.setItem('playerKey', payload.playerKey)
       return payload
 
-    case 'GAME_JOINED':
-      localStorage.setItem('playerKey', payload.playerKey)
-      return payload
+    case 'PLAYER_JOINED':
+      return addPlayer(state, payload.player)
 
-    case 'PLAYER_JOINED': {
-      return {
-        ...state,
-        game: {
-          ...state.game,
-          players: [...state.game.players, payload.player],
-        },
-      }
-    }
+    case 'GAME_STARTED':
+      return startRound(state, payload)
 
     case 'REJOIN_FAILED':
-    case 'DISCONNECTED':
       navigate('/')
-      localStorage.setItem('playerKey', undefined)
+      localStorage.removeItem('playerKey')
+      console.log('reset: ', type)
+      return undefined
+
+    case 'DISCONNECTED':
+      localStorage.removeItem('playerKey')
       console.log('reset: ', type)
       return undefined
   }
+
+  return state
 }
 
 const Game = () => {
@@ -49,8 +51,6 @@ const Game = () => {
 
   // handle change in ready state
   useEffect(() => {
-    console.log('ready state', readyState)
-
     if (readyState === ReadyState.CLOSING || readyState === ReadyState.CLOSED) {
       dispatchMessage({ type: 'DISCONNECTED' })
     }
@@ -63,45 +63,32 @@ const Game = () => {
     }
   }, [lastJsonMessage])
 
-  const onCreateGame = (payload) => {
-    sendJsonMessage({
-      type: 'CREATE_GAME',
-      payload,
-    })
-  }
-
-  const onJoinGame = (payload) => {
-    sendJsonMessage({
-      type: 'JOIN_GAME',
-      payload,
-    })
-  }
-
-  const onRejoinGame = (payload) => {
-    sendJsonMessage({
-      type: 'REJOIN_GAME',
-      payload,
-    })
+  const sendMessage = (message) => {
+    console.log('SEND', message)
+    sendJsonMessage(message)
   }
 
   const localPlayerKey = localStorage.getItem('playerKey')
   return (
     <Router>
       <JoinOrCreateGame path="/" />
-      <JoinGame path="/join" onJoinGame={onJoinGame} />
-      <CreateGame path="/create" onCreateGame={onCreateGame} />
+      <JoinGame path="/join" sendMessage={sendMessage} />
+      <CreateGame path="/create" sendMessage={sendMessage} />
 
-      {gameState && (
-        <GameLobby
-          path="/:gameId"
-          playerKey={gameState.playerKey}
-          game={gameState.game}
-          sendMessage={sendJsonMessage}
-        />
+      {gameState && !gameState.round && (
+        <GameLobby path="/:gameId" gameState={gameState} sendMessage={sendMessage} />
       )}
-      {!gameState && !localPlayerKey && <JoinGame path="/:gameId" onJoinGame={onJoinGame} />}
+
+      {gameState && gameState.round && (
+        <GameBoard path="/:gameId" gameState={gameState} sendMessage={sendMessage} />
+      )}
+
+      {!gameState && !localPlayerKey && <JoinGame path="/:gameId" sendMessage={sendMessage} />}
       {!gameState && localPlayerKey && (
-        <RejoinGame path="/:gameId" playerKey={localPlayerKey} onRejoinGame={onRejoinGame} />
+        <>
+          <RejoinGame path="/" playerKey={localPlayerKey} sendMessage={sendMessage} />
+          <RejoinGame path="/:gameId" playerKey={localPlayerKey} sendMessage={sendMessage} />
+        </>
       )}
     </Router>
   )

@@ -14,8 +14,8 @@ const PlayerList = ({ className, players, opened }) => {
         </Card.Header>
         <Accordion.Collapse eventKey="0">
           <ListGroup>
-            {players.map(({ name }) => (
-              <ListGroup.Item key={name}>{name}</ListGroup.Item>
+            {players.map(({ id, name }) => (
+              <ListGroup.Item key={id}>{name}</ListGroup.Item>
             ))}
           </ListGroup>
         </Accordion.Collapse>
@@ -26,9 +26,12 @@ const PlayerList = ({ className, players, opened }) => {
 
 PlayerList.propTypes = {
   className: PropTypes.string,
-  players: PropTypes.arrayOf({
-    name: PropTypes.string.isRequired,
-  }).isRequired,
+  players: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   opened: PropTypes.bool,
 }
 

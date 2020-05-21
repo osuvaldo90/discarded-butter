@@ -1,3 +1,5 @@
 - per game message queue 
 - remove idle players
 - remove idle games
+- initial screen is join game with secondary "create game" button; create game -> new screen that
+  carries over whatever name was typed in

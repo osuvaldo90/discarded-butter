@@ -15,7 +15,13 @@ const FORM_CONFIG = indexBy(prop('name'), [
   },
 ])
 
-const CreateGame = ({ onCreateGame }) => {
+const CreateGame = ({ sendMessage }) => {
+  const onCreateGame = (payload) =>
+    sendMessage({
+      type: 'CREATE_GAME',
+      payload,
+    })
+
   return (
     <Container>
       <Row>

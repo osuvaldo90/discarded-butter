@@ -7,13 +7,13 @@ import { MessageInterface } from '../message-interface'
 import { registerMessage } from '../registry'
 import { gameSchema } from '../schemas'
 
-interface GameCreatedPayload {
+export interface GameCreatedPayload {
   playerId: string
   playerKey: string
   game: SerializedGame
 }
 
-const gameCreatedSchema = Joi.object({
+export const gameCreatedSchema = Joi.object({
   playerId: Joi.string().required(),
   playerKey: Joi.string().required(),
   game: gameSchema.required(),

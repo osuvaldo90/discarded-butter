@@ -19,7 +19,8 @@ const TIME_LIMIT = 60000
 const WARNING_THRESHOLD = TIME_LIMIT / 3
 const DANGER_THRESHOLD = TIME_LIMIT / 6
 
-const GameBoard = ({ players }) => {
+const GameBoard = ({ gameState }) => {
+  const { players } = gameState.game
   const [selectedCardIndex, setSelectedCardIndex] = useState()
   const [startTime] = useState(Date.now())
   const [msLeft, setMsLeft] = useState(TIME_LIMIT)

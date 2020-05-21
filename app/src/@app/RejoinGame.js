@@ -1,13 +1,17 @@
 import { useParams } from '@reach/router'
-import PropTypes from 'prop-types'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
-const RejoinGame = ({ playerKey, onRejoinGame }) => {
+const RejoinGame = ({ playerKey, sendMessage }) => {
+  const rejoinedRef = useRef(false)
   const { gameId } = useParams()
 
   useEffect(() => {
-    if (playerKey) {
-      onRejoinGame({ playerKey, gameId })
+    if (playerKey && !rejoinedRef.current) {
+      rejoinedRef.current = true
+      sendMessage({
+        type: 'REJOIN_GAME',
+        payload: { playerKey, gameId },
+      })
     }
   })
   return <div>durrr</div>

@@ -1,14 +1,16 @@
-import PropTypes from 'prop-types'
-import React, { useState } from 'react'
-import { Container, Row, Col, Button, InputGroup, Form } from 'react-bootstrap'
+import React from 'react'
+import { Button, Col, Container, Form, InputGroup, Row } from 'react-bootstrap'
 import { FaClipboardList } from 'react-icons/fa'
 
 import PlayerList from './PlayerList'
 
-const GameLobby = ({ game, sendMessage }) => {
-  console.log(game)
-
-  const onStartGame = () => {}
+const GameLobby = ({ gameState, sendMessage }) => {
+  const onStartGame = () => {
+    sendMessage({
+      type: 'START_GAME',
+      payload: { playerKey: gameState.playerKey },
+    })
+  }
 
   return (
     <Container>
@@ -29,7 +31,7 @@ const GameLobby = ({ game, sendMessage }) => {
           <Row className="my-4">
             <Col>
               <InputGroup>
-                <Form.Control readOnly value={`https://free-cah.heroku.com/${game.id}`} />
+                <Form.Control readOnly value={`https://free-cah.heroku.com/${gameState.game.id}`} />
                 <InputGroup.Append>
                   <Button title="Copy link">
                     <FaClipboardList />
@@ -41,7 +43,7 @@ const GameLobby = ({ game, sendMessage }) => {
           </Row>
         </Col>
         <Col>
-          <PlayerList players={game.players} opened />
+          <PlayerList players={gameState.game.players} opened />
         </Col>
       </Row>
     </Container>

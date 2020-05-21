@@ -3,7 +3,7 @@ import { customAlphabet } from 'nanoid'
 
 import { Client } from '@app/client'
 import { Game, createPlayer } from '@app/engine'
-import { gameIdExists, storeGame } from '@app/state'
+import { gameIdExists, createGame } from '@app/state'
 
 import { MessageType } from '../constants'
 import { MessageInterface } from '../message-interface'
@@ -29,8 +29,7 @@ async function handleCreateGame(client: Client, { playerName }: CreateGamePayloa
 
   const game = new Game(gameId)
   const player = createPlayer(client, playerName)
-  game.addPlayer(player)
-  storeGame(game)
+  createGame(game, player)
 
   await client.send(makeGameCreatedMessage(game, player))
 }

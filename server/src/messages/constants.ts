@@ -8,6 +8,9 @@ export enum MessageType {
   REJOIN_GAME = 'REJOIN_GAME',
   REJOIN_FAILED = 'REJOIN_FAILED',
   PLAYER_JOINED = 'PLAYER_JOINED',
+  START_GAME = 'START_GAME',
+  GAME_STARTED = 'GAME_STARTED',
+  ROUND_STARTED = 'ROUND_STARTED',
 }
 
 export const messageTypes = values(MessageType)

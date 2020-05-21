@@ -3,15 +3,28 @@ import { pipe, map } from 'ramda'
 import VError from 'verror'
 
 import { Client } from './client'
-import { playerSchema } from './messages/schemas'
 
 export class Player {
-  constructor(
-    readonly client: Client,
-    readonly id: string,
-    readonly name: string,
-    readonly key: string,
-  ) {}
+  constructor(client: Client, readonly id: string, readonly name: string, readonly key: string) {
+    this._client = client
+  }
+
+  get client(): Client {
+    return this._client
+  }
+
+  updateClient(client: Client): void {
+    this._client.terminate()
+    this._client = client
+  }
+
+  private _client: Client
+}
+
+export interface SerializedCurrentPlayer {
+  id: string
+  key: string
+  name: string
 }
 
 export interface SerializedPlayer {
@@ -35,6 +48,18 @@ const serializePlayers = pipe(
   (playerMap: Map<string, Player>): Player[] => Array.from(playerMap.values()),
   map(serializePlayer),
 )
+
+export interface WhiteCard {
+  id: string
+  content: string
+}
+
+export interface BlackCard {
+  id: string
+  content: string
+  pick: number
+  draw: number
+}
 
 export class Game {
   constructor(readonly id: string) {}
@@ -63,6 +88,14 @@ export class Game {
     return Array.from(this.players.values())
   }
 
+  setBlackCard(card: BlackCard): void {
+    this.blackCard = card
+  }
+
+  setPlayerHand(player: Player, cards: WhiteCard[]): void {
+    this.playerHands.set(player.id, cards)
+  }
+
   serialize(): SerializedGame {
     return {
       id: this.id,
@@ -72,6 +105,8 @@ export class Game {
 
   private players = new Map<string, Player>()
   private keyPlayers = new Map<string, Player>()
+  private blackCard?: BlackCard
+  private playerHands = new Map<string, WhiteCard[]>()
 }
 
 export function createPlayer(client: Client, playerName: string): Player {

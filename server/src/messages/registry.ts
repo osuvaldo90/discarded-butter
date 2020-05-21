@@ -14,6 +14,7 @@ interface MessagePayloadStuff {
 
 const globalMessageRegistry = new Map<MessageType, MessagePayloadStuff>()
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const defaultHandler = (client: Client, payload: any): Promise<void> => {
   throw new Error('no handler')
 }

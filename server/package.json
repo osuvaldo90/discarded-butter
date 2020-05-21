@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test-watch": "npx nodemon -w src -w test -w tsconfig.json -e ts -x \"tsc && blue-tape -r source-map-support/register -r module-alias/register\" build/test/integration.test.js",
-    "start-watch": "npx nodemon -w src -w tsconfig.json -e ts -x \"tsc && node -r source-map-support/register -r module-alias/register\" build/src/index.js"
+    "test": "npx nodemon -w src -w test -w tsconfig.json -e ts -x \"tsc && blue-tape -r source-map-support/register -r module-alias/register\" build/test/integration.test.js",
+    "start": "npx nodemon -w src -w tsconfig.json -e ts -x \"tsc && node -r source-map-support/register -r module-alias/register\" build/src/index.js"
   },
   "author": "",
   "license": "ISC",

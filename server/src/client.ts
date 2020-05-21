@@ -28,4 +28,8 @@ export class Client {
       throw new VError({ cause, info: { message } }, 'Client.send')
     }
   }
+
+  terminate(): void {
+    this.socket.terminate()
+  }
 }

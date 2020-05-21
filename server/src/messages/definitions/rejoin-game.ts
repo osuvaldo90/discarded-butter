@@ -27,6 +27,7 @@ async function handleRejoinGame(
   const game = findGameById(gameId)
   if (game.hasPlayerByKey(playerKey)) {
     const player = game.getPlayerByKey(playerKey)
+    player.updateClient(client)
     await client.send(makeGameJoinedMessage(game, player))
   } else {
     await client.send(makeRejoinFailedMessage())

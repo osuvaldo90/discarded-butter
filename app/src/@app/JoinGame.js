@@ -19,7 +19,13 @@ const FORM_CONFIG = indexBy(prop('name'), [
   },
 ])
 
-const JoinGame = ({ onJoinGame, gameId = '' }) => {
+const JoinGame = ({ sendMessage, gameId = '' }) => {
+  const onJoinGame = (payload) =>
+    sendMessage({
+      type: 'JOIN_GAME',
+      payload,
+    })
+
   return (
     <Container>
       <Row>

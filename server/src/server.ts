@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import util from 'util'
 
-import { pipe, filter, endsWith } from 'ramda'
+import { pipe, endsWith } from 'ramda'
 import VError from 'verror'
 import WebSocket from 'ws'
 
