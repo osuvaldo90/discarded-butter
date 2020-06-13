@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { pipe, map, range } from 'ramda'
+import { pipe, map, range, find, propEq } from 'ramda'
 import VError from 'verror'
 
 import { Client } from './client'
@@ -26,13 +26,26 @@ export interface SerializedPlayer {
   name: string
 }
 
+export enum RoundStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
+
+export interface RoundWinner {
+  player: SerializedPlayer
+  submission: WhiteCard
+}
+
 export interface SerializedRound {
   id: string
+  status: RoundStatus
   startTime: number
   timeLimit: number
   cardCzar: SerializedPlayer
   blackCard: BlackCard
   hand?: WhiteCard[]
+  submissions?: WhiteCard[]
+  winner?: RoundWinner
 }
 
 export interface SerializedGameState {
@@ -69,13 +82,24 @@ export interface BlackCard {
   pick: number
   draw: number
 }
-const TIME_LIMIT = 60000
+const TIME_LIMIT = 6000
+const GRACE_PERIOD = 500
+
+type OnEndRoundHandler = (round: Round, players: Player[]) => Promise<void>
 
 export class Round {
   constructor(private cardCzar: Player, private blackCard: BlackCard) {
     this.id = nanoid()
     this.startTime = Date.now()
     this.timeLimit = TIME_LIMIT
+  }
+
+  getStatus(): RoundStatus {
+    return this.status
+  }
+
+  getCardCzar(): Player {
+    return this.cardCzar
   }
 
   getBlackCard(): BlackCard {
@@ -90,21 +114,70 @@ export class Round {
     this.handsByPlayerId.set(player.id, cards)
   }
 
+  getSubmissions(): WhiteCard[] {
+    return Array.from(this.submissionsByPlayerId.values())
+  }
+
+  getSubmissionsByPlayerId(): IterableIterator<[string, WhiteCard]> {
+    return this.submissionsByPlayerId.entries()
+  }
+
+  setPlayerSubmission(player: Player, cardId: string): void {
+    try {
+      const hand = this.handsByPlayerId.get(player.id)
+      if (!hand) {
+        throw new VError(`no hand for player ${player.id}`)
+      }
+
+      const submittedCard = find(propEq('id', cardId), hand)
+      if (!submittedCard) {
+        throw new VError({ info: { hand } }, `card ${cardId} not in hand`)
+      }
+
+      this.submissionsByPlayerId.set(player.id, submittedCard)
+    } catch (cause) {
+      throw new VError({ info: { playerId: player, cardId } }, 'Round.setPlayerSubmission')
+    }
+  }
+
+  setWinner(player: Player, submission: WhiteCard): void {
+    this.winner = { player, submission }
+  }
+
   serializeForPlayer(player: Player): SerializedRound {
+    const submissions =
+      this.status === RoundStatus.CLOSED
+        ? Array.from(this.submissionsByPlayerId.values())
+        : undefined
+
     return {
       id: this.id,
+      status: this.status,
       startTime: this.startTime,
       timeLimit: this.timeLimit,
       cardCzar: serializePlayer(this.cardCzar),
       blackCard: this.blackCard,
       hand: this.getPlayerHand(player),
+      submissions,
+      winner: this.winner && {
+        player: serializePlayer(this.winner.player),
+        submission: this.winner.submission,
+      },
     }
   }
 
+  async endRound(onEndRound: OnEndRoundHandler, players: Player[]): Promise<void> {
+    this.status = RoundStatus.CLOSED
+    await onEndRound(this, players)
+  }
+
   readonly id: string
+  private status = RoundStatus.OPEN
   private handsByPlayerId = new Map<string, WhiteCard[]>()
+  private submissionsByPlayerId = new Map<string, WhiteCard>()
   private startTime: number
   private timeLimit: number
+  private winner?: { player: Player; submission: WhiteCard }
 }
 
 function drawBlackCard(): BlackCard {
@@ -136,6 +209,14 @@ export class Game {
     return this.playersByKey.has(playerKey)
   }
 
+  getPlayerById(playerId: string): Player {
+    const player = this.playersById.get(playerId)
+    if (!player) {
+      throw new VError({ info: { playerId } }, `Game.getPlayerById: player not found ${playerId}`)
+    }
+    return player
+  }
+
   getPlayerByKey(playerKey: string): Player {
     const player = this.playersByKey.get(playerKey)
     if (!player) {
@@ -151,7 +232,7 @@ export class Game {
     return this.players
   }
 
-  startRound(): Round {
+  startRound(onEndRound: OnEndRoundHandler): Round {
     const czar = this.players[this.nextRoundCzarPlayerIndex]
     const newRound = new Round(czar, drawBlackCard())
     for (const player of this.playersById.values()) {
@@ -164,7 +245,13 @@ export class Game {
       this.nextRoundCzarPlayerIndex += 1
     }
 
+    setTimeout(() => newRound.endRound(onEndRound, this.players), TIME_LIMIT + GRACE_PERIOD)
+
     this.round = newRound
+    return this.round
+  }
+
+  getRound(): Round | undefined {
     return this.round
   }
 

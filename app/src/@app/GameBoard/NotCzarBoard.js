@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col, Button } from 'react-bootstrap'
 
 import PlayerList from '../PlayerList'
 import { gameStateShape } from '../state'
@@ -8,12 +8,32 @@ import { gameStateShape } from '../state'
 import BlackCard from './BlackCard'
 import GameCard from './GameCard'
 
+const WhiteCard = ({ children, variant, onSelectCard, index }) => {
+  return (
+    <GameCard
+      className="h-100"
+      variant={variant}
+      onSelectCard={onSelectCard && (() => onSelectCard(index))}
+    >
+      {children}
+    </GameCard>
+  )
+}
+
+WhiteCard.propTypes = {
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.oneOf(['selected', 'light']),
+  index: PropTypes.number,
+  onSelectCard: PropTypes.func,
+}
+
 const NotCzarBoard = ({ gameState, sendMessage }) => {
-  const { players } = gameState
   const [selectedCardIndex, setSelectedCardIndex] = useState()
 
+  const { players, playerKey } = gameState
   const { hand, blackCard } = gameState.round
-  const onCardSelected = (index) => {
+
+  const onSelectCard = (index) => {
     setSelectedCardIndex(index)
     const selectedCard = hand[index]
     sendMessage({
@@ -26,7 +46,15 @@ const NotCzarBoard = ({ gameState, sendMessage }) => {
     })
   }
 
-  const { startTime, timeLimit } = gameState.round
+  const startNextRound = () => {
+    sendMessage({
+      type: 'START_ROUND',
+      payload: { playerKey },
+    })
+  }
+
+  const { status, startTime, timeLimit, submissions, winner } = gameState.round
+  const showTimer = status === 'OPEN'
 
   return (
     <>
@@ -34,26 +62,48 @@ const NotCzarBoard = ({ gameState, sendMessage }) => {
         <Col>
           <Row xs={1} md={2}>
             <Col className="mb-3 sticky-top">
-              <BlackCard className="h-100" startTime={startTime} timeLimit={timeLimit}>
+              <BlackCard
+                className="h-100"
+                showTimer={showTimer}
+                startTime={startTime}
+                timeLimit={timeLimit}
+              >
                 {blackCard.content}
               </BlackCard>
             </Col>
             <Col className="mb-3 d-md-none">
               <PlayerList players={players} opened={false} />
             </Col>
-            {hand &&
+            {winner && (
+              <>
+                <h4>The winner is</h4>
+                <p>{winner.player.name}</p>
+                <WhiteCard>{winner.submission.content}</WhiteCard>
+                <Button onClick={startNextRound}>Next Round</Button>
+              </>
+            )}
+            {submissions && !winner && (
+              <>
+                <h4>Time&apos;s up!</h4>
+                <p>Hang on a sec while the card czar makes a decision.</p>
+                {submissions.map(({ id, content }, index) => {
+                  return (
+                    <Col key={id} className="mb-3">
+                      <WhiteCard index={index}>{content}</WhiteCard>
+                    </Col>
+                  )
+                })}
+              </>
+            )}
+            {!submissions &&
+              hand &&
               hand.map(({ id, content }, index) => {
                 const variant = index === selectedCardIndex ? 'selected' : 'light'
+
                 return (
-                  <Col key={id} className="mb-3">
-                    <GameCard
-                      className="h-100"
-                      variant={variant}
-                      onSelectCard={() => onCardSelected(index)}
-                    >
-                      {content}
-                    </GameCard>
-                  </Col>
+                  <WhiteCard key={id} index={index} onSelectCard={onSelectCard} variant={variant}>
+                    {content}
+                  </WhiteCard>
                 )
               })}
           </Row>

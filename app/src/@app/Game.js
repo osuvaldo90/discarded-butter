@@ -8,7 +8,7 @@ import GameLobby from './GameLobby'
 import JoinGame from './JoinGame'
 import JoinOrCreateGame from './JoinOrCreateGame'
 import RejoinGame from './RejoinGame'
-import { addPlayer, startRound } from './state'
+import { addPlayer, startRound, endRound, winnerChosen } from './state'
 
 const gameStateReducer = (state, message) => {
   console.log('RECV', message)
@@ -24,8 +24,14 @@ const gameStateReducer = (state, message) => {
     case 'PLAYER_JOINED':
       return addPlayer(state, payload.player)
 
-    case 'GAME_STARTED':
+    case 'ROUND_STARTED':
       return startRound(state, payload)
+
+    case 'WINNER_CHOSEN':
+      return winnerChosen(state, payload)
+
+    case 'END_ROUND':
+      return endRound(state, payload)
 
     case 'REJOIN_FAILED':
       navigate('/')

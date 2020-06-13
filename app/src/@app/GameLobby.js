@@ -9,7 +9,7 @@ import { gameStateShape } from './state'
 const GameLobby = ({ gameState, sendMessage }) => {
   const onStartGame = () => {
     sendMessage({
-      type: 'START_GAME',
+      type: 'START_ROUND',
       payload: { playerKey: gameState.playerKey },
     })
   }

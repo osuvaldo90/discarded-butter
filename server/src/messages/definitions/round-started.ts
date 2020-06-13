@@ -6,18 +6,18 @@ import { registerMessage } from '../registry'
 
 import { roundSchema } from './common'
 
-type GameStartedPayload = SerializedRound
+type RoundStartedPayload = SerializedRound
 
-const gameStartedPayloadSchema = roundSchema
+const roundStartedPayloadSchema = roundSchema
 
-export function makeGameStartedMessage(
+export function makeRoundStartedMessage(
   player: Player,
   round: Round,
-): MessageInterface<GameStartedPayload> {
+): MessageInterface<RoundStartedPayload> {
   return {
-    type: MessageType.GAME_STARTED,
+    type: MessageType.ROUND_STARTED,
     payload: round.serializeForPlayer(player),
   }
 }
 
-registerMessage(MessageType.GAME_STARTED, gameStartedPayloadSchema)
+registerMessage(MessageType.ROUND_STARTED, roundStartedPayloadSchema)
