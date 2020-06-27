@@ -37,7 +37,8 @@ module.exports = {
     'import/resolver': {
       alias: {
         map: [
-          ['@app', './src/@app']
+          ['@app', './src/@app'],
+          ['@lib', './src/@lib']
         ],
       }
     }
@@ -61,6 +62,11 @@ module.exports = {
       pathGroups: [
         {
           'pattern': '@app/**',
+          'group': 'external',
+          'position': 'after'
+        },
+        {
+          'pattern': '@lib/**',
           'group': 'external',
           'position': 'after'
         }

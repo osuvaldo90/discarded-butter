@@ -13,12 +13,12 @@ export const winnerChosen = (state, winner) => set(winnerLens, winner, state)
 const submissionLens = lensPath(['round', 'submissions'])
 export const endRound = (state, { submissions }) => set(submissionLens, submissions, state)
 
-const playerShape = PropTypes.shape({
+export const playerShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 })
 
-const blackCardShape = PropTypes.shape({
+export const blackCardShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   pick: PropTypes.number.isRequired,
@@ -30,7 +30,7 @@ const whiteCardShape = PropTypes.shape({
   content: PropTypes.string.isRequired,
 })
 
-const roundShape = PropTypes.shape({
+export const roundShape = PropTypes.shape({
   id: PropTypes.string.isRequired,
   blackCard: blackCardShape.isRequired,
   hand: PropTypes.arrayOf(whiteCardShape.isRequired),

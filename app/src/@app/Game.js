@@ -1,24 +1,20 @@
-import { Router, navigate } from '@reach/router'
+import { navigate, Router } from '@reach/router'
 import React, { useEffect, useReducer } from 'react'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 
-import CreateGame from './CreateGame'
 import GameBoard from './GameBoard'
-import GameLobby from './GameLobby'
-import JoinGame from './JoinGame'
-import JoinOrCreateGame from './JoinOrCreateGame'
-import RejoinGame from './RejoinGame'
-import { addPlayer, startRound, endRound, winnerChosen } from './state'
+import Home from './Home'
+import NewGame from './NewGame'
+import { addPlayer, endRound, startRound, winnerChosen } from './state'
 
 const gameStateReducer = (state, message) => {
-  console.log('RECV', message)
-
   const { type, payload } = message
   switch (type) {
     case 'GAME_CREATED':
     case 'GAME_JOINED':
       navigate(`/${payload.gameId}`)
       localStorage.setItem('playerKey', payload.playerKey)
+      localStorage.setItem('gameId', payload.gameId)
       return payload
 
     case 'PLAYER_JOINED':
@@ -56,10 +52,9 @@ const Game = () => {
   const [gameState, dispatchMessage] = useReducer(gameStateReducer)
   const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('ws://localhost:8080')
 
-  console.log('GAME STATE', gameState)
-
   // handle change in ready state
   useEffect(() => {
+    console.log('READY STATE', readyState)
     if (readyState === ReadyState.CLOSING || readyState === ReadyState.CLOSED) {
       dispatchMessage({ type: 'DISCONNECTED' })
     }
@@ -68,37 +63,26 @@ const Game = () => {
   // handle incoming messages
   useEffect(() => {
     if (lastJsonMessage) {
+      console.log('RECV', lastJsonMessage)
       dispatchMessage(lastJsonMessage)
     }
   }, [lastJsonMessage])
+
+  // log game state changes
+  useEffect(() => {
+    console.log('GAME STATE', gameState)
+  }, [gameState])
 
   const sendMessage = (message) => {
     console.log('SEND', message)
     sendJsonMessage(message)
   }
 
-  const localPlayerKey = localStorage.getItem('playerKey')
   return (
     <Router>
-      <JoinOrCreateGame path="/" />
-      <JoinGame path="/join" sendMessage={sendMessage} />
-      <CreateGame path="/create" sendMessage={sendMessage} />
-
-      {gameState && !gameState.round && (
-        <GameLobby path="/:gameId" gameState={gameState} sendMessage={sendMessage} />
-      )}
-
-      {gameState && gameState.round && (
-        <GameBoard path="/:gameId" gameState={gameState} sendMessage={sendMessage} />
-      )}
-
-      {!gameState && !localPlayerKey && <JoinGame path="/:gameId" sendMessage={sendMessage} />}
-      {!gameState && localPlayerKey && (
-        <>
-          <RejoinGame path="/" playerKey={localPlayerKey} sendMessage={sendMessage} />
-          <RejoinGame path="/:gameId" playerKey={localPlayerKey} sendMessage={sendMessage} />
-        </>
-      )}
+      <Home path="/" sendMessage={sendMessage} />
+      <NewGame path="new-game" sendMessage={sendMessage} />
+      <GameBoard path="/:gameId" sendMessage={sendMessage} gameState={gameState} />
     </Router>
   )
 }
